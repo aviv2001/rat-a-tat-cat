@@ -1,0 +1,23 @@
+{
+    "name": "rat-a-tat-cat-online",
+    "version": "2.0.0",
+    "description": "Official rules implementation of Rat-a-Tat Cat with Add Card twist",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js",
+      "test": "node tests/test-game-logic.js"
+    },
+    "keywords": [
+      "rat-a-tat-cat",
+      "card-game",
+      "multiplayer",
+      "socket.io",
+      "memory-game"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.18.2",
+      "socket.io": "^4.6.1"
+    }
+  }
