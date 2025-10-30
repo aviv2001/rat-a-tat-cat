@@ -295,39 +295,62 @@ class RatATatCatGame {
 
     /**
      * Use Swap power card
-     * RULE: Blind swap one of your cards with opponent's card
+     * RULE: Blind swap one of your cards with opponent's card (OPTIONAL)
      */
     useSwap(myCardIndex, opponentId, opponentCardIndex) {
         if (!this.drawnCard || this.drawnCard.type !== 'swap') {
             return { success: false, error: 'No swap card drawn' };
         }
-        
+
         const player = this.getCurrentPlayer();
         const opponent = this.players.find(p => p.id === opponentId);
-        
-        if (!opponent) return { success: false, error: 'Invalid opponent' };
+
+        if (!opponent) {
+            return { success: false, error: 'Invalid opponent' };
+        }
+        if (opponent.id === player.id) {
+            return { success: false, error: 'Cannot swap with yourself' };
+        }
         if (myCardIndex < 0 || myCardIndex >= player.hand.length) {
             return { success: false, error: 'Invalid your card index' };
         }
         if (opponentCardIndex < 0 || opponentCardIndex >= opponent.hand.length) {
             return { success: false, error: 'Invalid opponent card index' };
         }
-        
+
         // Blind swap - neither player should know what they're getting
         const myCard = player.hand[myCardIndex];
         const theirCard = opponent.hand[opponentCardIndex];
-        
+
         player.hand[myCardIndex] = theirCard;
         opponent.hand[opponentCardIndex] = myCard;
-        
+
         // Update known status - swapped cards are now unknown
         player.knownCards[myCardIndex] = false;
         opponent.knownCards[opponentCardIndex] = false;
-        
+
         this.discardPile.push(this.drawnCard);
         this.drawnCard = null;
         this.drawnFromDiscard = false;
-        
+
+        this.endTurn();
+        return { success: true, swappedWith: opponent.name };
+    }
+
+    /**
+     * Decline to use Swap power card
+     * RULE: Swap is optional - player can choose not to swap
+     */
+    declineSwap() {
+        if (!this.drawnCard || this.drawnCard.type !== 'swap') {
+            return { success: false, error: 'No swap card drawn' };
+        }
+
+        // Discard the swap card without using it
+        this.discardPile.push(this.drawnCard);
+        this.drawnCard = null;
+        this.drawnFromDiscard = false;
+
         this.endTurn();
         return { success: true };
     }

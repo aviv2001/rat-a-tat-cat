@@ -138,10 +138,23 @@ io.on('connection', (socket) => {
     socket.on('useSwap', ({ myCardIndex, opponentId, opponentCardIndex }) => {
         const game = games.get(socket.gameId);
         if (!game || !isPlayerTurn(game, socket.id)) return;
-        
+
         const result = game.useSwap(myCardIndex, opponentId, opponentCardIndex);
         if (result.success) {
             console.log(`🔄 ${socket.id} swapped card with ${opponentId}`);
+            broadcastGameState(socket.gameId);
+        } else {
+            socket.emit('error', result.error);
+        }
+    });
+
+    socket.on('declineSwap', () => {
+        const game = games.get(socket.gameId);
+        if (!game || !isPlayerTurn(game, socket.id)) return;
+
+        const result = game.declineSwap();
+        if (result.success) {
+            console.log(`🔄 ${socket.id} declined to use Swap card`);
             broadcastGameState(socket.gameId);
         } else {
             socket.emit('error', result.error);
