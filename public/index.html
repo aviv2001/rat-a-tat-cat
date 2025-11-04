@@ -150,8 +150,8 @@
 
         /* CARD STYLES */
         .card {
-            width: 80px;
-            height: 120px;
+            aspect-ratio: 2 / 3;
+            width: 100px;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
@@ -165,6 +165,9 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             user-select: none;
             transform-style: preserve-3d;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .card.flipping {
@@ -190,20 +193,17 @@
         .card.hidden {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            background-size: auto;
         }
 
         .card.number {
-            background: white;
+            background-color: transparent;
             border: 3px solid #333;
-            color: #333;
         }
 
         .card.power {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            font-size: 0.7em;
-            text-align: center;
-            padding: 5px;
+            background-color: transparent;
+            border: 3px solid #333;
         }
 
         .card.clickable {
@@ -255,32 +255,23 @@
         }
 
         .card.hoverable::after {
-            content: attr(data-hover-content);
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: white;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-image: var(--hover-image);
             border: 3px solid #fbbf24;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
             box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             z-index: 10;
-        }
-
-        .card.hoverable.power-hover::after {
-            font-size: 0.7em;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
         }
 
         .card.hoverable:hover::after {
@@ -376,11 +367,13 @@
             flex-wrap: wrap;
         }
 
+        @media (max-width: 1080px) {
         .player-cards .card {
             width: 60px;
             height: 90px;
             font-size: 1.5em;
         }
+    }
 
         /* STATUS MESSAGES */
         .status {
@@ -877,11 +870,8 @@
                         // My outer cards - hoverable!
                         renderCard(cardEl, { type: 'hidden' });
                         cardEl.classList.add('hoverable');
-                        const hoverContent = getCardDisplay(cardData.card);
-                        cardEl.setAttribute('data-hover-content', hoverContent);
-                        if (cardData.card.type !== 'number') {
-                            cardEl.classList.add('power-hover');
-                        }
+                        const hoverImagePath = getCardImagePath(cardData.card);
+                        cardEl.style.setProperty('--hover-image', `url('${hoverImagePath}')`);
                     } else {
                         renderCard(cardEl, { type: 'hidden' });
                     }
@@ -1019,18 +1009,36 @@
 
         // ============ CARD RENDERING ============
 
+        function getCardImagePath(card) {
+            if (card.type === 'number') {
+                return `/assets/${card.value}.jpeg`;
+            } else if (card.type === 'peek') {
+                return '/assets/PEEK.jpeg';
+            } else if (card.type === 'swap') {
+                return '/assets/SWAP.jpeg';
+            } else if (card.type === 'draw2') {
+                return '/assets/DRAW.jpeg';
+            } else if (card.type === 'addcard') {
+                return '/assets/ADD.jpeg';
+            }
+            return '';
+        }
+
         function renderCard(element, card) {
             element.className = 'card';
             
             if (card.type === 'hidden') {
                 element.classList.add('hidden');
                 element.innerHTML = '?';
+                element.style.backgroundImage = '';
             } else if (card.type === 'number') {
                 element.classList.add('number');
-                element.innerHTML = card.value;
+                element.innerHTML = '';
+                element.style.backgroundImage = `url('${getCardImagePath(card)}')`;
             } else {
                 element.classList.add('power');
-                element.innerHTML = getPowerCardDisplay(card.type);
+                element.innerHTML = '';
+                element.style.backgroundImage = `url('${getCardImagePath(card)}')`;
             }
         }
 
